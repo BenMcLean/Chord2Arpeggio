@@ -22,6 +22,6 @@ with open('chord-fingers.csv', newline='') as csvfile:
             i = 0
             while i < len(positions):
                 if positions[i].isnumeric():
-                    result.append(int(positions[i]) + standardtuning[i] + keytranspose + octavetranspose * 12)
+                    result.append(int(positions[i]) + standardtuning[i] - keytranspose + octavetranspose * 12)
                 i += 1
             print(result)
