@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Chord to Arpeggio
-Inputs a chord name and outputs a series of numbers for how many half steps above the root note each note in the guitar chord is.
+"""Guitar Chord to Arpeggio
+Inputs a guitar chord name and outputs a series of numbers for how many half steps above the root note each note in the guitar chord is.
+Uses chord-fingers.csv from https://archive.ics.uci.edu/ml/datasets/Guitar+Chords+finger+positions
 """
 import argparse
 import csv
