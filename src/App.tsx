@@ -1,10 +1,18 @@
 import { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
+import chordfingers from './../chord-fingers.json'
 
 function App() {
   const [count, setCount] = useState(0)
-
+  return (
+    <div className="App">
+      {
+      chordfingers.filter(x => x["CHORD_ROOT"] == "E" && x["CHORD_TYPE"] == "m")[0]["FINGER_POSITIONS"]
+      }
+    </div>
+    )
+/*
   return (
     <div className="App">
       <header className="App-header">
@@ -40,6 +48,7 @@ function App() {
       </header>
     </div>
   )
+  */
 }
 
 export default App
