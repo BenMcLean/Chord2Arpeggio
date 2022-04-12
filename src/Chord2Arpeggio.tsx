@@ -31,13 +31,13 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
                         <th scope="col">E</th>
                       </tr>
                       {frets.map(fret => { return (
-                        <tr>
-                            <th scope="row" style={{textAlign:"right"}}>{fret}</th>
-                            {stringNumbers.map(stringNumber => {
-                                return (<td><input type="radio" id="{fret}{stringNumber}" name="string{stringNumber}" value="{fret}{stringNumber}"/></td>)
-                                })}
-                        </tr>)
-                        })}
+                      <tr key={fret}>
+                          <th scope="row" style={{textAlign:"right"}}>{fret}</th>
+                          {stringNumbers.map(stringNumber => {
+                              return (<td key={`${fret}${stringNumber}`}><input type="radio" id={`${fret}${stringNumber}`} name={`string${stringNumber}`} value={`${fret}${stringNumber}`} /></td>);
+                              })}
+                      </tr>);
+                      })}
                     </table>
                   </form>
                 </div>
