@@ -1,12 +1,20 @@
 import * as React from "react";
-import chordfingers from "./../chord-fingers.json";
-
+import chordfingers from "./chord-fingers.json";
+type Chord = {
+	CHORD_ROOT: string;
+	CHORD_TYPE: string;
+	CHORD_STRUCTURE: string;
+	FINGER_POSITIONS: string;
+	NOTE_NAMES: string;
+};
 type State = {
 	fingers: number[];
+	chord: Chord | undefined;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state = {
 		fingers: [0, 0, 0, 0, 0, 0],
+		chord: undefined,
 	};
 	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void => {
 		let fingers = this.state.fingers;
@@ -14,6 +22,15 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			e.currentTarget.value.charAt(0)
 		);
 		this.setState({ fingers: fingers });
+		this.findChord();
+	};
+	findChord = (): void => {
+		let fingers = this.state.fingers
+			.map((e) => (e == 0 ? "x" : e - 1))
+			.join(",");
+		this.setState({
+			chord: chordfingers.find((e) => e.FINGER_POSITIONS == fingers),
+		});
 	};
 	render() {
 		return (
@@ -39,7 +56,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								return (
 									<tr key={fret}>
 										<th scope="row" style={{ textAlign: "right" }}>
-											{frets[fret]}
+											{fretNames[fret]}
 										</th>
 										{stringNumbers.map((stringNumber) => {
 											return (
@@ -62,15 +79,13 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					</form>
 				</div>
 				<div>
-					{
-						this.state.fingers
-						// chordfingers.filter(x => x["CHORD_ROOT"] == "E" && x["CHORD_TYPE"] == "m")[0]["FINGER_POSITIONS"]
-					}
+					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
 				</div>
+				<div>{this.state.chord == undefined ? "undefined" : "DEFINED!!"}</div>
 			</div>
 		);
 	}
 }
-const frets = ["Closed", "Open", "1", "2", "3", "4"];
+const fretNames = ["Closed", "Open", "1", "2", "3", "4"];
 const stringNumbers = [0, 1, 2, 3, 4, 5];
 export default Chord2Arpeggio;
