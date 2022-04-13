@@ -12,7 +12,7 @@ type State = {
 	chord?: Chord;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
-	state = {
+	state: State = {
 		fingers: [0, 0, 0, 0, 0, 0],
 		chord: undefined,
 	};
