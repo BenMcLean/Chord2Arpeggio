@@ -9,7 +9,7 @@ type Chord = {
 };
 type State = {
 	fingers: number[];
-	chord: Chord | undefined;
+	chord?: Chord;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state = {
@@ -36,12 +36,24 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chord: chordfingers.find((e) => e.FINGER_POSITIONS == fingers),
 		});
 	};
+	famiStudio = (
+		fingers: number[],
+		key: string,
+		octaveTranspose: number
+	): number[] => {
+		let result = [0, 0, 0, 0, 0, 0];
+		for (let i = 0; i < 6; i++) {
+			result[i] =
+				fingers[i] +
+				standardTuning[i] -
+				(key in keyTransposes ? keyTransposes[key] : 0) +
+				octaveTranspose * 12;
+		}
+		return result;
+	};
 	render() {
 		return (
 			<div>
-				{/* <div>
-                    <input type="text" value={this.state.text} onChange={this.onChange} />
-                </div> */}
 				<div id="shape">
 					<form>
 						<table>
@@ -90,11 +102,36 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				<div>
 					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
 				</div>
-				<div>{this.state.chord == undefined ? "undefined" : "DEFINED!!"}</div>
+				<div>
+					{this.state.chord == undefined
+						? "Chord not found."
+						: (this.state.chord as Chord).CHORD_ROOT}
+				</div>
 			</div>
 		);
 	}
 }
-const fretNames = ["Closed", "Open", "1", "2", "3", "4"];
-const stringNumbers = [0, 1, 2, 3, 4, 5];
+const fretNames: string[] = ["Closed", "Open", "1", "2", "3", "4"];
+const stringNumbers: number[] = [0, 1, 2, 3, 4, 5];
+const standardTuning: number[] = [0, 5, 10, 15, 19, 24]; // Every Amateur Does Get Better Eventually
+const keyTransposes: { [name: string]: number } = {
+	E: 0,
+	F: 1,
+	"F#": 2,
+	Gb: 2,
+	G: 3,
+	"G#": 4,
+	Ab: 4,
+	A: 5,
+	"A#": 6,
+	Bb: 6,
+	B: 7,
+	Cb: 7,
+	C: 8,
+	"C#": 9,
+	Db: 9,
+	D: 10,
+	"D#": 11,
+	Eb: 11,
+};
 export default Chord2Arpeggio;
