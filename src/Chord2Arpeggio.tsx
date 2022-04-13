@@ -16,7 +16,11 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		fingers: [0, 0, 0, 0, 0, 0],
 		chord: undefined,
 	};
-	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void => {
+	reset = (fingers: number[]): void => {
+		this.setState({ fingers: fingers });
+		this.findChord();
+	};
+	onFingerClick = (e: React.FormEvent<HTMLInputElement>): void => {
 		let fingers = this.state.fingers;
 		fingers[parseInt(e.currentTarget.value.charAt(1))] = parseInt(
 			e.currentTarget.value.charAt(0)
@@ -42,9 +46,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					<form>
 						<table>
 							<tr>
-								<th style={{ textAlign: "right" }}>
-									<input type="reset" />
-								</th>
+								<th />
 								<th scope="col">E</th>
 								<th scope="col">A</th>
 								<th scope="col">D</th>
@@ -56,7 +58,14 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								return (
 									<tr key={fret}>
 										<th scope="row" style={{ textAlign: "right" }}>
-											{fretNames[fret]}
+											<button
+												type="button"
+												onClick={() => {
+													this.reset([fret, fret, fret, fret, fret, fret]);
+												}}
+											>
+												{fretNames[fret]}
+											</button>
 										</th>
 										{stringNumbers.map((stringNumber) => {
 											return (
@@ -67,7 +76,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 														name={`string${stringNumber}`}
 														value={`${fret}${stringNumber}`}
 														checked={this.state.fingers[stringNumber] == fret}
-														onChange={this.onFingerChange}
+														onClick={this.onFingerClick}
 													/>
 												</td>
 											);
