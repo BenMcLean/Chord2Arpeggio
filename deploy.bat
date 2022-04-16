@@ -1,5 +1,11 @@
-rem build
+@ECHO ON
+%~d0:
+cd %~dp0
 npm run build
-
-rem navigate into the build output directory
+cd dist
+git init
+git checkout -b master
+git add -A
+git commit -m 'deploy'
 git subtree push --prefix dist origin gh-pages
+@pause
