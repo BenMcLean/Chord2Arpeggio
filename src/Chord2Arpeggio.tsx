@@ -12,18 +12,25 @@ type State = {
 	chord?: Chord;
 	chordroot?: string;
 	chordtype?: string;
+	chordselect?: string;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state: State = {
 		fingers: [0, 0, 0, 0, 0, 0],
 		chordroot: "chordrootblank",
 		chordtype: "chordtypeblank",
+		chordselect: "chordselectblank",
 	};
 	reset = (fingers: number[]): void => {
-		this.setState({ fingers: fingers });
-		this.findChord();
+		this.setState({
+			fingers: fingers,
+			chord: undefined,
+			chordroot: "chordrootblank",
+			chordtype: "chordtypeblank",
+			chordselect: "chordselectblank",
+		});
 	};
-	onFingerClick = (e: React.FormEvent<HTMLInputElement>): void => {
+	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void => {
 		let fingers = this.state.fingers;
 		fingers[parseInt(e.currentTarget.value.charAt(1))] = parseInt(
 			e.currentTarget.value.charAt(0)
@@ -40,6 +47,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chord: chord,
 			chordroot: chord?.CHORD_ROOT ?? "chordrootblank",
 			chordtype: chord?.CHORD_TYPE ?? "chordtypeblank",
+			chordselect:
+				chord != undefined ? this.chordSelect(chord) : "chordselectblank",
 		});
 		this.forceUpdate();
 	};
@@ -63,14 +72,31 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	onChordRootChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({
+			fingers: [0, 0, 0, 0, 0, 0],
+			chord: undefined,
 			chordroot: event.currentTarget.value,
-			chordtype: undefined,
+			chordtype: "chordtypeblank",
+			chordselect: "chordselectblank",
 		});
 		this.forceUpdate();
 	};
 	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-		this.setState({ chordtype: event.currentTarget.value });
+		this.setState({
+			fingers: [0, 0, 0, 0, 0, 0],
+			chord: undefined,
+			chordtype: event.currentTarget.value,
+			chordselect: "chordselectblank",
+		});
 	};
+	onChordSelectChange = (
+		event: React.ChangeEvent<HTMLSelectElement>
+	): void => {};
+	chordSelect = (chord: Chord): string =>
+		chord.FINGER_POSITIONS +
+		" - " +
+		chord.NOTE_NAMES +
+		" - " +
+		chord.CHORD_STRUCTURE;
 	render() {
 		return (
 			<div>
@@ -109,7 +135,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 															name={`string${stringNumber}`}
 															value={`${fret}${stringNumber}`}
 															checked={this.state.fingers[stringNumber] == fret}
-															onChange={this.onFingerClick}
+															onChange={this.onFingerChange}
 														/>
 													</td>
 												);
@@ -183,12 +209,32 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 							<select
 								name="chordselect"
 								id="chordselect"
-								// value={this.state.chordtype}
-								// onChange={this.onChordTypeChange}
+								value={this.state.chordselect}
+								onChange={this.onChordSelectChange}
 							>
 								<option id="chordselectblank" value="chordselectblank">
 									Select Chord
-								</option>{" "}
+								</option>
+								{chordfingers
+									.filter(
+										(e) =>
+											e.CHORD_ROOT == this.state.chordroot &&
+											e.CHORD_TYPE == this.state.chordtype
+									)
+									.map((chord) => this.chordSelect(chord))
+									.sort(
+										new Intl.Collator("en", {
+											numeric: true,
+											sensitivity: "accent",
+										}).compare
+									)
+									.map((chord) => {
+										return (
+											<option key={chord} id={chord} value={chord}>
+												{chord}
+											</option>
+										);
+									})}
 							</select>
 						)}
 				</div>
