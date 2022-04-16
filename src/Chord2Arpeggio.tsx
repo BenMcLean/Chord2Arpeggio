@@ -67,7 +67,6 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	render() {
 		return (
 			<div>
-				TEST
 				<div id="shape">
 					<form>
 						<table>
