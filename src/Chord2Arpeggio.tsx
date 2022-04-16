@@ -238,13 +238,14 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 							</select>
 						)}
 				</div>
-				{/* <div>
-					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
-				</div> */}
 				<div>
 					{this.state.chord != undefined && (
 						<div>
-							FamiStudio arpeggio numbers:{" "}
+							<a href="https://famistudio.org/" target="_blank">
+								FamiStudio
+							</a>{" "}
+							arpeggio numbers for chord {this.state.chordroot}
+							{this.state.chordtype}:{" "}
 							<input
 								type="text"
 								value={this.famiStudio(
