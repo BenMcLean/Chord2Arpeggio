@@ -36,13 +36,9 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chord = chordfingers.find((e) => e.FINGER_POSITIONS == fingers);
 		this.setState({
 			chord: chord,
+			chordroot: chord?.CHORD_ROOT,
+			chordtype: chord?.CHORD_TYPE,
 		});
-		if (chord != undefined) {
-			this.setState({
-				chordroot: chord.CHORD_ROOT,
-				chordtype: chord.CHORD_TYPE,
-			});
-		}
 	};
 	famiStudio = (
 		fingers: number[],
@@ -61,6 +57,9 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	onChordRootChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({ chordroot: event.currentTarget.value });
+		if (this.state.chordroot == undefined) {
+			this.setState({ chordtype: undefined });
+		}
 	};
 	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({ chordtype: event.currentTarget.value });
@@ -164,22 +163,23 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						</select>
 					)}
 				</div>
-				<div>
+				{/* <div>
 					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
-				</div>
+				</div> */}
 				<div>
-					{this.state.chord == undefined ? (
-						"Chord not found."
-					) : (
-						<input
-							type="text"
-							value={this.famiStudio(
-								this.state.fingers,
-								(this.state.chord as Chord).CHORD_ROOT,
-								-1
-							).join(",")}
-							disabled
-						/>
+					{this.state.chord != undefined && (
+						<div>
+							FamiStudio arpeggio numbers:{" "}
+							<input
+								type="text"
+								value={this.famiStudio(
+									this.state.fingers,
+									(this.state.chord as Chord).CHORD_ROOT,
+									-1
+								).join(",")}
+								disabled
+							/>
+						</div>
 					)}
 				</div>
 			</div>
