@@ -16,6 +16,8 @@ type State = {
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state: State = {
 		fingers: [0, 0, 0, 0, 0, 0],
+		chordroot: "chordrootblank",
+		chordtype: "chordtypeblank",
 	};
 	reset = (fingers: number[]): void => {
 		this.setState({ fingers: fingers });
@@ -36,8 +38,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chord = chordfingers.find((e) => e.FINGER_POSITIONS == fingers);
 		this.setState({
 			chord: chord,
-			chordroot: chord?.CHORD_ROOT,
-			chordtype: chord?.CHORD_TYPE,
+			chordroot: chord?.CHORD_ROOT ?? "chordrootblank",
+			chordtype: chord?.CHORD_TYPE ?? "chordtypeblank",
 		});
 		this.forceUpdate();
 	};
@@ -68,7 +70,6 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({ chordtype: event.currentTarget.value });
-		console.log("choice was " + event.currentTarget.value);
 	};
 	render() {
 		return (
@@ -127,7 +128,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						value={this.state.chordroot}
 						onChange={this.onChordRootChange}
 					>
-						<option id="chordrootblank" value={undefined}>
+						<option id="chordrootblank" value="chordrootblank">
 							Chord Root
 						</option>
 						{Object.keys(keyTransposes).map((chordroot) => {
@@ -138,51 +139,54 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 							);
 						})}
 					</select>
-					{this.state.chordroot != undefined && (
-						<select
-							name="chordtype"
-							id="chordtype"
-							value={this.state.chordtype}
-							onChange={this.onChordTypeChange}
-						>
-							<option id="chordtypeblank" value={undefined}>
-								Chord Type
-							</option>
-							{[
-								...new Set(
-									chordfingers
-										.filter((e) => e.CHORD_ROOT == this.state.chordroot)
-										.map((e) => e.CHORD_TYPE)
-								),
-							]
-								.sort(
-									new Intl.Collator("en", {
-										numeric: true,
-										sensitivity: "accent",
-									}).compare
-								)
-								.map((chordtype) => {
-									return (
-										<option
-											key={"chordtype" + chordtype}
-											id={"chordtype" + chordtype}
-											value={chordtype}
-										>
-											{chordtype}
-										</option>
-									);
-								})}
-						</select>
-					)}
 					{this.state.chordroot != undefined &&
-						this.state.chordtype != undefined && (
+						this.state.chordroot != "chordrootblank" && (
+							<select
+								name="chordtype"
+								id="chordtype"
+								value={this.state.chordtype}
+								onChange={this.onChordTypeChange}
+							>
+								<option id="chordtypeblank" value="chordtypeblank">
+									Chord Type
+								</option>
+								{[
+									...new Set(
+										chordfingers
+											.filter((e) => e.CHORD_ROOT == this.state.chordroot)
+											.map((e) => e.CHORD_TYPE)
+									),
+								]
+									.sort(
+										new Intl.Collator("en", {
+											numeric: true,
+											sensitivity: "accent",
+										}).compare
+									)
+									.map((chordtype) => {
+										return (
+											<option
+												key={"chordtype" + chordtype}
+												id={"chordtype" + chordtype}
+												value={chordtype}
+											>
+												{chordtype}
+											</option>
+										);
+									})}
+							</select>
+						)}
+					{this.state.chordroot != undefined &&
+						this.state.chordroot != "chordrootblank" &&
+						this.state.chordtype != undefined &&
+						this.state.chordtype != "chordtypeblank" && (
 							<select
 								name="chordselect"
 								id="chordselect"
 								// value={this.state.chordtype}
 								// onChange={this.onChordTypeChange}
 							>
-								<option id="chordtypeselect" value={undefined}>
+								<option id="chordselectblank" value="chordselectblank">
 									Select Chord
 								</option>{" "}
 							</select>
