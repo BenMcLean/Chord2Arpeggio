@@ -10,11 +10,12 @@ type Chord = {
 type State = {
 	fingers: number[];
 	chord?: Chord;
+	chordroot?: string;
+	chordtype?: string;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state: State = {
 		fingers: [0, 0, 0, 0, 0, 0],
-		chord: undefined,
 	};
 	reset = (fingers: number[]): void => {
 		this.setState({ fingers: fingers });
@@ -30,11 +31,18 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	findChord = (): void => {
 		let fingers = this.state.fingers
-			.map((e) => (e == 0 ? "x" : e - 1))
-			.join(",");
+				.map((e) => (e == 0 ? "x" : e - 1))
+				.join(","),
+			chord = chordfingers.find((e) => e.FINGER_POSITIONS == fingers);
 		this.setState({
-			chord: chordfingers.find((e) => e.FINGER_POSITIONS == fingers),
+			chord: chord,
 		});
+		if (chord != undefined) {
+			this.setState({
+				chordroot: chord.CHORD_ROOT,
+				chordtype: chord.CHORD_TYPE,
+			});
+		}
 	};
 	famiStudio = (
 		fingers: number[],
@@ -50,6 +58,12 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				octaveTranspose * 12;
 		}
 		return result;
+	};
+	onChordRootChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+		this.setState({ chordroot: event.currentTarget.value });
+	};
+	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+		this.setState({ chordtype: event.currentTarget.value });
 	};
 	render() {
 		return (
@@ -100,12 +114,73 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					</form>
 				</div>
 				<div>
+					<select
+						name="chordroot"
+						id="chordroot"
+						value={this.state.chordroot}
+						onChange={this.onChordRootChange}
+					>
+						<option id="chordrootblank" value={undefined}>
+							Chord Root
+						</option>
+						{Object.keys(keyTransposes).map((chordroot) => {
+							return (
+								<option id={chordroot} value={chordroot}>
+									{chordroot}
+								</option>
+							);
+						})}
+					</select>
+					{this.state.chordroot != undefined && (
+						<select
+							name="chordtype"
+							id="chordtype"
+							value={this.state.chordtype}
+							onChange={this.onChordTypeChange}
+						>
+							<option id="chordtypeblank" value={undefined}>
+								Chord Type
+							</option>
+							{[
+								...new Set(
+									chordfingers
+										.filter((e) => e.CHORD_ROOT == this.state.chordroot)
+										.map((e) => e.CHORD_TYPE)
+								),
+							]
+								.sort(
+									new Intl.Collator("en", {
+										numeric: true,
+										sensitivity: "accent",
+									}).compare
+								)
+								.map((chordtype) => {
+									return (
+										<option id={chordtype} value={chordtype}>
+											{chordtype}
+										</option>
+									);
+								})}
+						</select>
+					)}
+				</div>
+				<div>
 					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
 				</div>
 				<div>
-					{this.state.chord == undefined
-						? "Chord not found."
-						: (this.state.chord as Chord).CHORD_ROOT}
+					{this.state.chord == undefined ? (
+						"Chord not found."
+					) : (
+						<input
+							type="text"
+							value={this.famiStudio(
+								this.state.fingers,
+								(this.state.chord as Chord).CHORD_ROOT,
+								-1
+							).join(",")}
+							disabled
+						/>
+					)}
 				</div>
 			</div>
 		);
