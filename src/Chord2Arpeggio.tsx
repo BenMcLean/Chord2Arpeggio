@@ -32,10 +32,11 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chordselect: "chordselectblank",
 		});
 	};
-	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void => {
+	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void =>
+		this.onFingerChangeString(e.currentTarget.value);
+	onFingerChangeString = (finger: string): void => {
 		let fingers = this.state.fingers;
-		fingers[+e.currentTarget.value.charAt(1)] =
-			+e.currentTarget.value.charAt(0);
+		fingers[+finger.charAt(1)] = +finger.charAt(0);
 		this.setState({ fingers: fingers });
 		this.findChord();
 	};
@@ -150,7 +151,14 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 											</th>
 											{stringNumbers.map((stringNumber) => {
 												return (
-													<td key={`${fret}${stringNumber}`}>
+													<td
+														key={`${fret}${stringNumber}`}
+														onClick={() => {
+															this.onFingerChangeString(
+																`${fret}${stringNumber}`
+															);
+														}}
+													>
 														<input
 															type="radio"
 															id={`${fret}${stringNumber}`}
