@@ -34,9 +34,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void => {
 		let fingers = this.state.fingers;
-		fingers[parseInt(e.currentTarget.value.charAt(1))] = parseInt(
-			e.currentTarget.value.charAt(0)
-		);
+		fingers[+e.currentTarget.value.charAt(1)] =
+			+e.currentTarget.value.charAt(0);
 		this.setState({ fingers: fingers });
 		this.findChord();
 	};
@@ -53,16 +52,15 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				chord != undefined ? this.chordSelect(chord) : "chordselectblank",
 		});
 	};
-	famiStudio = (fingers: number[], key: string, octave: number): number[] => {
-		let result: number[] = [];
-		for (let i = 0; i < 6; i++) {
-			if (fingers[i] > 0)
+	famiStudio = (chord: Chord, octave: number): number[] => {
+		let result: number[] = [],
+			positions: string[] = chord.FINGER_POSITIONS.split(","),
+			keyTranspose: number = keyTransposes[chord.CHORD_ROOT];
+		for (let i: number = 0; i < 6; i++) {
+			if (!isNaN(+positions[i]))
 				result = [
 					...result,
-					fingers[i] +
-						standardTuning[i] -
-						(key in keyTransposes ? keyTransposes[key] : 0) +
-						octave * 12,
+					+positions[i] + standardTuning[i] - keyTranspose + octave * 12,
 				];
 		}
 		return result;
@@ -102,7 +100,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					chordtype: chord.CHORD_TYPE,
 					chordselect: event.currentTarget.value,
 					fingers: chord.FINGER_POSITIONS.split(",").map((e) =>
-						e == "x" ? 0 : parseInt(e) + 1
+						e == "x" ? 0 : +e + 1
 					) as number[],
 				});
 			}
@@ -281,10 +279,18 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 							<input
 								type="text"
 								value={this.famiStudio(
-									this.state.fingers,
-									(this.state.chord as Chord).CHORD_ROOT,
+									this.state.chord,
 									this.state.octave
 								).join(",")}
+								onClick={() => {
+									navigator.clipboard.writeText(
+										this.famiStudio(
+											this.state.chord as Chord,
+											this.state.octave
+										).join(",")
+									);
+								}}
+								readOnly
 								disabled
 							/>
 						</div>
