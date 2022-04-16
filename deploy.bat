@@ -1,7 +1,7 @@
 @ECHO ON
 %~d0:
 cd %~dp0
-npm run build
+call npm run build
 cd dist
 git init
 git checkout -b master
