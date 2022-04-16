@@ -88,9 +88,30 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chordselect: "chordselectblank",
 		});
 	};
-	onChordSelectChange = (
-		event: React.ChangeEvent<HTMLSelectElement>
-	): void => {};
+	onChordSelectChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+		if (
+			event.currentTarget.value != undefined &&
+			event.currentTarget.value != "chordselectblank"
+		) {
+			let chord = chordfingers.find(
+				(e) =>
+					e.CHORD_ROOT == this.state.chordroot &&
+					e.CHORD_TYPE == this.state.chordtype &&
+					event.currentTarget.value == this.chordSelect(e)
+			);
+			if (chord != undefined) {
+				this.setState({
+					chord: chord,
+					chordroot: chord.CHORD_ROOT,
+					chordtype: chord.CHORD_TYPE,
+					chordselect: event.currentTarget.value,
+					fingers: chord.FINGER_POSITIONS.split(",").map((e) =>
+						e == "x" ? 0 : parseInt(e) + 1
+					) as number[],
+				});
+			}
+		}
+	};
 	chordSelect = (chord: Chord): string =>
 		chord.FINGER_POSITIONS +
 		" - " +
@@ -155,7 +176,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						onChange={this.onChordRootChange}
 					>
 						<option id="chordrootblank" value="chordrootblank">
-							Chord Root
+							Root
 						</option>
 						{Object.keys(keyTransposes).map((chordroot) => {
 							return (
@@ -174,7 +195,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								onChange={this.onChordTypeChange}
 							>
 								<option id="chordtypeblank" value="chordtypeblank">
-									Chord Type
+									Type
 								</option>
 								{[
 									...new Set(
