@@ -1,7 +1,7 @@
 @ECHO OFF
 %~d0:
 cd %~dp0
-git checkout -b master
+git checkout master
 call npm run build
 git add -A
 git commit -m deploy
