@@ -1,4 +1,4 @@
-@ECHO ON
+@ECHO OFF
 %~d0:
 cd %~dp0
 git checkout -b master

@@ -39,30 +39,36 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chordroot: chord?.CHORD_ROOT,
 			chordtype: chord?.CHORD_TYPE,
 		});
+		this.forceUpdate();
 	};
 	famiStudio = (
 		fingers: number[],
 		key: string,
 		octaveTranspose: number
 	): number[] => {
-		let result = [0, 0, 0, 0, 0, 0];
+		let result: number[] = [];
 		for (let i = 0; i < 6; i++) {
-			result[i] =
-				fingers[i] +
-				standardTuning[i] -
-				(key in keyTransposes ? keyTransposes[key] : 0) +
-				octaveTranspose * 12;
+			if (fingers[i] > 0)
+				result = [
+					...result,
+					fingers[i] +
+						standardTuning[i] -
+						(key in keyTransposes ? keyTransposes[key] : 0) +
+						octaveTranspose * 12,
+				];
 		}
 		return result;
 	};
 	onChordRootChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-		this.setState({ chordroot: event.currentTarget.value });
-		if (this.state.chordroot == undefined) {
-			this.setState({ chordtype: undefined });
-		}
+		this.setState({
+			chordroot: event.currentTarget.value,
+			chordtype: undefined,
+		});
+		this.forceUpdate();
 	};
 	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({ chordtype: event.currentTarget.value });
+		console.log("choice was " + event.currentTarget.value);
 	};
 	render() {
 		return (
@@ -70,45 +76,47 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				<div id="shape">
 					<form>
 						<table>
-							<tr>
-								<th />
-								<th scope="col">E</th>
-								<th scope="col">A</th>
-								<th scope="col">D</th>
-								<th scope="col">G</th>
-								<th scope="col">B</th>
-								<th scope="col">E</th>
-							</tr>
-							{stringNumbers.map((fret) => {
-								return (
-									<tr key={fret}>
-										<th scope="row" style={{ textAlign: "right" }}>
-											<button
-												type="button"
-												onClick={() => {
-													this.reset([fret, fret, fret, fret, fret, fret]);
-												}}
-											>
-												{fretNames[fret]}
-											</button>
-										</th>
-										{stringNumbers.map((stringNumber) => {
-											return (
-												<td key={`${fret}${stringNumber}`}>
-													<input
-														type="radio"
-														id={`${fret}${stringNumber}`}
-														name={`string${stringNumber}`}
-														value={`${fret}${stringNumber}`}
-														checked={this.state.fingers[stringNumber] == fret}
-														onClick={this.onFingerClick}
-													/>
-												</td>
-											);
-										})}
-									</tr>
-								);
-							})}
+							<tbody>
+								<tr>
+									<th />
+									<th scope="col">E</th>
+									<th scope="col">A</th>
+									<th scope="col">D</th>
+									<th scope="col">G</th>
+									<th scope="col">B</th>
+									<th scope="col">E</th>
+								</tr>
+								{stringNumbers.map((fret) => {
+									return (
+										<tr key={fret}>
+											<th scope="row" style={{ textAlign: "right" }}>
+												<button
+													type="button"
+													onClick={() => {
+														this.reset([fret, fret, fret, fret, fret, fret]);
+													}}
+												>
+													{fretNames[fret]}
+												</button>
+											</th>
+											{stringNumbers.map((stringNumber) => {
+												return (
+													<td key={`${fret}${stringNumber}`}>
+														<input
+															type="radio"
+															id={`${fret}${stringNumber}`}
+															name={`string${stringNumber}`}
+															value={`${fret}${stringNumber}`}
+															checked={this.state.fingers[stringNumber] == fret}
+															onChange={this.onFingerClick}
+														/>
+													</td>
+												);
+											})}
+										</tr>
+									);
+								})}
+							</tbody>
 						</table>
 					</form>
 				</div>
@@ -124,7 +132,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						</option>
 						{Object.keys(keyTransposes).map((chordroot) => {
 							return (
-								<option id={chordroot} value={chordroot}>
+								<option key={chordroot} id={chordroot} value={chordroot}>
 									{chordroot}
 								</option>
 							);
@@ -155,13 +163,30 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								)
 								.map((chordtype) => {
 									return (
-										<option id={chordtype} value={chordtype}>
+										<option
+											key={"chordtype" + chordtype}
+											id={"chordtype" + chordtype}
+											value={chordtype}
+										>
 											{chordtype}
 										</option>
 									);
 								})}
 						</select>
 					)}
+					{this.state.chordroot != undefined &&
+						this.state.chordtype != undefined && (
+							<select
+								name="chordselect"
+								id="chordselect"
+								// value={this.state.chordtype}
+								// onChange={this.onChordTypeChange}
+							>
+								<option id="chordtypeselect" value={undefined}>
+									Select Chord
+								</option>{" "}
+							</select>
+						)}
 				</div>
 				{/* <div>
 					{this.state.fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",")}
