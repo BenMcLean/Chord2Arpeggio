@@ -13,6 +13,7 @@ type State = {
 	chordroot?: string;
 	chordtype?: string;
 	chordselect?: string;
+	octave: number;
 };
 export class Chord2Arpeggio extends React.Component<{}, State> {
 	state: State = {
@@ -20,6 +21,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		chordroot: "chordrootblank",
 		chordtype: "chordtypeblank",
 		chordselect: "chordselectblank",
+		octave: -1,
 	};
 	reset = (fingers: number[]): void => {
 		this.setState({
@@ -50,13 +52,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chordselect:
 				chord != undefined ? this.chordSelect(chord) : "chordselectblank",
 		});
-		this.forceUpdate();
 	};
-	famiStudio = (
-		fingers: number[],
-		key: string,
-		octaveTranspose: number
-	): number[] => {
+	famiStudio = (fingers: number[], key: string, octave: number): number[] => {
 		let result: number[] = [];
 		for (let i = 0; i < 6; i++) {
 			if (fingers[i] > 0)
@@ -65,7 +62,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					fingers[i] +
 						standardTuning[i] -
 						(key in keyTransposes ? keyTransposes[key] : 0) +
-						octaveTranspose * 12,
+						octave * 12,
 				];
 		}
 		return result;
@@ -78,7 +75,6 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 			chordtype: "chordtypeblank",
 			chordselect: "chordselectblank",
 		});
-		this.forceUpdate();
 	};
 	onChordTypeChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
 		this.setState({
@@ -118,6 +114,13 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		chord.NOTE_NAMES +
 		" - " +
 		chord.CHORD_STRUCTURE;
+	onOctaveChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		this.setState({
+			octave: isNaN(+event.currentTarget.value)
+				? -1
+				: +event.currentTarget.value,
+		});
+	};
 	render() {
 		return (
 			<div>
@@ -262,17 +265,25 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				<div>
 					{this.state.chord != undefined && (
 						<div>
+							Octave:{" "}
+							<input
+								type="number"
+								id="octave"
+								value={this.state.octave}
+								onChange={this.onOctaveChange}
+							/>
+							<br />
 							<a href="https://famistudio.org/" target="_blank">
 								FamiStudio
 							</a>{" "}
-							arpeggio numbers for chord {this.state.chordroot}
+							arpeggio numbers for {this.state.chordroot}
 							{this.state.chordtype}:{" "}
 							<input
 								type="text"
 								value={this.famiStudio(
 									this.state.fingers,
 									(this.state.chord as Chord).CHORD_ROOT,
-									-1
+									this.state.octave
 								).join(",")}
 								disabled
 							/>
