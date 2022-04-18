@@ -56,6 +56,18 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		}
 		return fingerChart;
 	};
+	noteNames = (fingers: number[]): string => {
+		let noteNames: string[] = [];
+		for (let i: number = 0; i < 6; i++) {
+			if (fingers[i] > 0) {
+				noteNames = [
+					...noteNames,
+					((fingers[i] + standardTuning[i]) % 12).toString(),
+				];
+			}
+		}
+		return noteNames.join(",");
+	};
 	findChord = (): void => {
 		let chord = chordfingers.find((e) => this.fingers(e) == this.state.fingers);
 		this.setState({
