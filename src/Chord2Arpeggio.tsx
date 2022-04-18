@@ -38,7 +38,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		let fingers = this.state.fingers;
 		fingers[+finger.charAt(1)] = +finger.charAt(0);
 		this.setState({ fingers: fingers });
-		this.findChord();
+		this.findChord(this.state.fingers);
 	};
 	fingers = (chord: Chord): number[] => {
 		let closed: boolean[] = chord.FINGER_POSITIONS.split(",").map(
@@ -56,20 +56,9 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		}
 		return fingerChart;
 	};
-	noteNames = (fingers: number[]): string => {
-		let noteNames: string[] = [];
-		for (let i: number = 0; i < 6; i++) {
-			if (fingers[i] > 0) {
-				noteNames = [
-					...noteNames,
-					((fingers[i] + standardTuning[i]) % 12).toString(),
-				];
-			}
-		}
-		return noteNames.join(",");
-	};
-	findChord = (): void => {
-		let chord = chordfingers.find((e) => this.fingers(e) == this.state.fingers);
+	findChord = (fingers: number[]): void => {
+		let fingerString = fingers.join(),
+			chord = chordfingers.find((e) => this.fingers(e).join() == fingerString);
 		this.setState({
 			chord: chord,
 			chordroot: chord?.CHORD_ROOT ?? "chordrootblank",
@@ -80,15 +69,11 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	famiStudio = (chord: Chord, octave: number): number[] => {
 		let result: number[] = [],
-			fingers = this.fingerNumbers(chord.FINGER_POSITIONS),
-			keyTranspose: number = notes[chord.CHORD_ROOT];
-		for (let i: number = 0; i < 6; i++) {
+			fingers = this.fingers(chord),
+			transpose: number = octave * 12 - notes[chord.CHORD_ROOT] - 1;
+		for (let i: number = 0; i < 6; i++)
 			if (fingers[i] > 0)
-				result = [
-					...result,
-					+fingers[i] - 1 + standardTuning[i] - keyTranspose + octave * 12,
-				];
-		}
+				result = [...result, +fingers[i] + standardTuning[i] + transpose];
 		return result;
 	};
 	onChordRootChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -145,10 +130,6 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				: +event.currentTarget.value,
 		});
 	};
-	fingerNumbers = (fingers: string): number[] =>
-		fingers.split(",").map((e) => (e == "x" ? 0 : +e + 1));
-	fingerString = (fingers: number[]): string =>
-		fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",");
 	render() {
 		return (
 			<div>
@@ -274,13 +255,17 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								<option id="chordselectblank" value="chordselectblank">
 									Select Chord
 								</option>
-								{chordfingers
-									.filter(
-										(e) =>
-											e.CHORD_ROOT == this.state.chordroot &&
-											e.CHORD_TYPE == this.state.chordtype
-									)
-									.map((chord) => this.chordSelect(chord))
+								{[
+									...new Set(
+										chordfingers
+											.filter(
+												(e) =>
+													e.CHORD_ROOT == this.state.chordroot &&
+													e.CHORD_TYPE == this.state.chordtype
+											)
+											.map((chord) => this.chordSelect(chord))
+									),
+								]
 									.sort(
 										new Intl.Collator("en", {
 											numeric: true,
