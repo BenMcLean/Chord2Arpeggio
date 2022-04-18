@@ -40,11 +40,24 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		this.setState({ fingers: fingers });
 		this.findChord();
 	};
+	fingers = (chord: Chord): number[] => {
+		let closed: boolean[] = chord.FINGER_POSITIONS.split(",").map(
+				(e) => e == "x"
+			),
+			noteNames: string[] = chord.NOTE_NAMES.split(","),
+			fingerChart: number[] = [0, 0, 0, 0, 0, 0],
+			note: number = 0;
+		for (let i: number = 0; i < 6; i++) {
+			fingerChart[i] = closed[i]
+				? 0
+				: ((notes[noteNames[note++]] - standardTuning[i] + 1073741820) % //Adding a really high positive multiple of 12 to guarantee a positive number
+						12) +
+				  1;
+		}
+		return fingerChart;
+	};
 	findChord = (): void => {
-		let fingers = this.state.fingers
-				.map((e) => (e == 0 ? "x" : e - 1))
-				.join(","),
-			chord = chordfingers.find((e) => e.FINGER_POSITIONS == fingers);
+		let chord = chordfingers.find((e) => this.fingers(e) == this.state.fingers);
 		this.setState({
 			chord: chord,
 			chordroot: chord?.CHORD_ROOT ?? "chordrootblank",
@@ -55,13 +68,13 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	famiStudio = (chord: Chord, octave: number): number[] => {
 		let result: number[] = [],
-			positions: string[] = chord.FINGER_POSITIONS.split(","),
-			keyTranspose: number = keyTransposes[chord.CHORD_ROOT];
+			fingers = this.fingerNumbers(chord.FINGER_POSITIONS),
+			keyTranspose: number = notes[chord.CHORD_ROOT];
 		for (let i: number = 0; i < 6; i++) {
-			if (!isNaN(+positions[i]))
+			if (fingers[i] > 0)
 				result = [
 					...result,
-					+positions[i] + standardTuning[i] - keyTranspose + octave * 12,
+					+fingers[i] - 1 + standardTuning[i] - keyTranspose + octave * 12,
 				];
 		}
 		return result;
@@ -100,15 +113,15 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 					chordroot: chord.CHORD_ROOT,
 					chordtype: chord.CHORD_TYPE,
 					chordselect: event.currentTarget.value,
-					fingers: chord.FINGER_POSITIONS.split(",").map((e) =>
-						e == "x" ? 0 : +e + 1
-					) as number[],
+					fingers: this.fingers(chord),
 				});
 			}
 		}
 	};
 	chordSelect = (chord: Chord): string =>
-		chord.FINGER_POSITIONS +
+		this.fingers(chord)
+			.map((e) => (e == 0 ? "x" : e - 1))
+			.join(",") +
 		" - " +
 		chord.NOTE_NAMES +
 		" - " +
@@ -120,6 +133,10 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				: +event.currentTarget.value,
 		});
 	};
+	fingerNumbers = (fingers: string): number[] =>
+		fingers.split(",").map((e) => (e == "x" ? 0 : +e + 1));
+	fingerString = (fingers: number[]): string =>
+		fingers.map((e) => (e == 0 ? "x" : e - 1)).join(",");
 	render() {
 		return (
 			<div>
@@ -187,7 +204,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						<option id="chordrootblank" value="chordrootblank">
 							Root
 						</option>
-						{Object.keys(keyTransposes).map((chordroot) => {
+						{Object.keys(notes).map((chordroot) => {
 							return (
 								<option key={chordroot} id={chordroot} value={chordroot}>
 									{chordroot}
@@ -311,7 +328,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 const fretNames: string[] = ["Closed", "Open", "1", "2", "3", "4"];
 const stringNumbers: number[] = [0, 1, 2, 3, 4, 5];
 const standardTuning: number[] = [0, 5, 10, 15, 19, 24]; // Every Amateur Does Get Better Eventually
-const keyTransposes: { [name: string]: number } = {
+const notes: { [name: string]: number } = {
 	E: 0,
 	F: 1,
 	"F#": 2,
