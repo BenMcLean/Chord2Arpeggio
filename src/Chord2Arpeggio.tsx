@@ -33,16 +33,16 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		});
 	};
 	onFingerChange = (e: React.FormEvent<HTMLInputElement>): void =>
-		this.onFingerChangeString(e.currentTarget.value);
-	onFingerChangeString = (finger: string): void => {
+		this.onFingerChangeNumbers(e.currentTarget.value.split(",").map((e) => +e));
+	onFingerChangeNumbers = (finger: number[]): void => {
 		let fingers = this.state.fingers;
-		fingers[+finger.charAt(1)] = +finger.charAt(0);
+		fingers[finger[1]] = finger[0];
 		this.setState({ fingers: fingers });
 		this.findChord(this.state.fingers);
 	};
 	fingers = (chord: Chord): number[] => {
 		let closed: boolean[] = chord.FINGER_POSITIONS.split(",").map(
-				(e) => e == "x"
+				(e) => e === "x"
 			),
 			noteNames: string[] = chord.NOTE_NAMES.split(","),
 			fingerChart: number[] = [0, 0, 0, 0, 0, 0],
@@ -58,7 +58,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	findChord = (fingers: number[]): void => {
 		let fingerString = fingers.join(),
-			chord = chordfingers.find((e) => this.fingers(e).join() == fingerString);
+			chord = chordfingers.find((e) => this.fingers(e).join() === fingerString);
 		this.setState({
 			chord: chord,
 			chordroot: chord?.CHORD_ROOT ?? "chordrootblank",
@@ -100,9 +100,9 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		) {
 			let chord = chordfingers.find(
 				(e) =>
-					e.CHORD_ROOT == this.state.chordroot &&
-					e.CHORD_TYPE == this.state.chordtype &&
-					event.currentTarget.value == this.chordSelect(e)
+					e.CHORD_ROOT === this.state.chordroot &&
+					e.CHORD_TYPE === this.state.chordtype &&
+					event.currentTarget.value === this.chordSelect(e)
 			);
 			if (chord != undefined) {
 				this.setState({
@@ -146,7 +146,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 									<th scope="col">B</th>
 									<th scope="col">E</th>
 								</tr>
-								{stringNumbers.map((fret) => {
+								{[...Array(13).keys()].map((fret) => {
 									return (
 										<tr key={fret}>
 											<th scope="row" style={{ textAlign: "right" }}>
@@ -159,21 +159,22 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 													{fretNames[fret]}
 												</button>
 											</th>
-											{stringNumbers.map((stringNumber) => {
+											{[...Array(6).keys()].map((stringNumber) => {
 												return (
 													<td
-														key={`${fret}${stringNumber}`}
+														key={`${fret},${stringNumber}`}
 														onClick={() => {
-															this.onFingerChangeString(
-																`${fret}${stringNumber}`
-															);
+															this.onFingerChangeNumbers([
+																+fret,
+																+stringNumber,
+															]);
 														}}
 													>
 														<input
 															type="radio"
-															id={`${fret}${stringNumber}`}
-															name={`string${stringNumber}`}
-															value={`${fret}${stringNumber}`}
+															id={`${fret},${stringNumber}`}
+															name={`${fret},${stringNumber}`}
+															value={`${fret},${stringNumber}`}
 															checked={this.state.fingers[stringNumber] == fret}
 															onChange={this.onFingerChange}
 														/>
@@ -219,7 +220,7 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								{[
 									...new Set(
 										chordfingers
-											.filter((e) => e.CHORD_ROOT == this.state.chordroot)
+											.filter((e) => e.CHORD_ROOT === this.state.chordroot)
 											.map((e) => e.CHORD_TYPE)
 									),
 								]
@@ -260,8 +261,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 										chordfingers
 											.filter(
 												(e) =>
-													e.CHORD_ROOT == this.state.chordroot &&
-													e.CHORD_TYPE == this.state.chordtype
+													e.CHORD_ROOT === this.state.chordroot &&
+													e.CHORD_TYPE === this.state.chordtype
 											)
 											.map((chord) => this.chordSelect(chord))
 									),
@@ -322,8 +323,21 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		);
 	}
 }
-const fretNames: string[] = ["Closed", "Open", "1", "2", "3", "4"];
-const stringNumbers: number[] = [0, 1, 2, 3, 4, 5];
+const fretNames: string[] = [
+	"Closed",
+	"Open",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"10",
+	"11",
+];
 const standardTuning: number[] = [0, 5, 10, 15, 19, 24]; // Every Amateur Does Get Better Eventually
 const notes: { [name: string]: number } = {
 	E: 0,
