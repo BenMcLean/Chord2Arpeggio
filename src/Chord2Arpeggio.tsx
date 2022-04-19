@@ -124,11 +124,8 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 		" - " +
 		chord.CHORD_STRUCTURE;
 	onOctaveChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-		this.setState({
-			octave: isNaN(+event.currentTarget.value)
-				? -1
-				: +event.currentTarget.value,
-		});
+		if (!isNaN(+event.currentTarget.value))
+			this.setState({ octave: +event.currentTarget.value });
 	};
 	render() {
 		return (
@@ -292,15 +289,14 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 										})}
 								</select>
 							)}
-					</div>
-					<div id="output">
+						<br />
 						{this.state.chord != undefined && (
 							<div>
 								Octave:{" "}
 								<input
 									type="number"
 									id="octave"
-									value={this.state.octave}
+									defaultValue="-1"
 									onChange={this.onOctaveChange}
 								/>
 								<br />
@@ -328,7 +324,6 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								/>
 							</div>
 						)}
-						<br />
 						<a href="https://github.com/BenMcLean/Chord2Arpeggio">
 							Get the source for this app!
 						</a>
