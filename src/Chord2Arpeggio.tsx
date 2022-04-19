@@ -132,8 +132,16 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 	};
 	render() {
 		return (
-			<div>
-				<div id="shape">
+			<div
+				id="Chord2ArpeggioParent"
+				style={{
+					display: "flex",
+					flexFlow: "column wrap",
+					justifyContent: "flex-start",
+					alignItems: "flex-start",
+				}}
+			>
+				<div id="shape" style={{ flex: "flex-shrink" }}>
 					<form>
 						<table>
 							<tbody>
@@ -188,136 +196,138 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 						</table>
 					</form>
 				</div>
-				<div>
-					<select
-						name="chordroot"
-						id="chordroot"
-						value={this.state.chordroot}
-						onChange={this.onChordRootChange}
-					>
-						<option id="chordrootblank" value="chordrootblank">
-							Root
-						</option>
-						{Object.keys(notes).map((chordroot) => {
-							return (
-								<option key={chordroot} id={chordroot} value={chordroot}>
-									{chordroot}
-								</option>
-							);
-						})}
-					</select>
-					{this.state.chordroot != undefined &&
-						this.state.chordroot != "chordrootblank" && (
-							<select
-								name="chordtype"
-								id="chordtype"
-								value={this.state.chordtype}
-								onChange={this.onChordTypeChange}
-							>
-								<option id="chordtypeblank" value="chordtypeblank">
-									Type
-								</option>
-								{[
-									...new Set(
-										chordfingers
-											.filter((e) => e.CHORD_ROOT === this.state.chordroot)
-											.map((e) => e.CHORD_TYPE)
-									),
-								]
-									.sort(
-										new Intl.Collator("en", {
-											numeric: true,
-											sensitivity: "accent",
-										}).compare
-									)
-									.map((chordtype) => {
-										return (
-											<option
-												key={"chordtype" + chordtype}
-												id={"chordtype" + chordtype}
-												value={chordtype}
-											>
-												{chordtype}
-											</option>
+				<div id="column2" style={{ flex: "flex-grow" }}>
+					<div id="dropdowns">
+						<select
+							name="chordroot"
+							id="chordroot"
+							value={this.state.chordroot}
+							onChange={this.onChordRootChange}
+						>
+							<option id="chordrootblank" value="chordrootblank">
+								Root
+							</option>
+							{Object.keys(notes).map((chordroot) => {
+								return (
+									<option key={chordroot} id={chordroot} value={chordroot}>
+										{chordroot}
+									</option>
+								);
+							})}
+						</select>
+						{this.state.chordroot != undefined &&
+							this.state.chordroot != "chordrootblank" && (
+								<select
+									name="chordtype"
+									id="chordtype"
+									value={this.state.chordtype}
+									onChange={this.onChordTypeChange}
+								>
+									<option id="chordtypeblank" value="chordtypeblank">
+										Type
+									</option>
+									{[
+										...new Set(
+											chordfingers
+												.filter((e) => e.CHORD_ROOT === this.state.chordroot)
+												.map((e) => e.CHORD_TYPE)
+										),
+									]
+										.sort(
+											new Intl.Collator("en", {
+												numeric: true,
+												sensitivity: "accent",
+											}).compare
+										)
+										.map((chordtype) => {
+											return (
+												<option
+													key={"chordtype" + chordtype}
+													id={"chordtype" + chordtype}
+													value={chordtype}
+												>
+													{chordtype}
+												</option>
+											);
+										})}
+								</select>
+							)}
+						{this.state.chordroot != undefined &&
+							this.state.chordroot != "chordrootblank" &&
+							this.state.chordtype != undefined &&
+							this.state.chordtype != "chordtypeblank" && (
+								<select
+									name="chordselect"
+									id="chordselect"
+									value={this.state.chordselect}
+									onChange={this.onChordSelectChange}
+								>
+									<option id="chordselectblank" value="chordselectblank">
+										Select Chord
+									</option>
+									{[
+										...new Set(
+											chordfingers
+												.filter(
+													(e) =>
+														e.CHORD_ROOT === this.state.chordroot &&
+														e.CHORD_TYPE === this.state.chordtype
+												)
+												.map((chord) => this.chordSelect(chord))
+										),
+									]
+										.sort(
+											new Intl.Collator("en", {
+												numeric: true,
+												sensitivity: "accent",
+											}).compare
+										)
+										.map((chord) => {
+											return (
+												<option key={chord} id={chord} value={chord}>
+													{chord}
+												</option>
+											);
+										})}
+								</select>
+							)}
+					</div>
+					<div id="output">
+						{this.state.chord != undefined && (
+							<div>
+								Octave:{" "}
+								<input
+									type="number"
+									id="octave"
+									value={this.state.octave}
+									onChange={this.onOctaveChange}
+								/>
+								<br />
+								<a href="https://famistudio.org/" target="_blank">
+									FamiStudio
+								</a>{" "}
+								arpeggio numbers for {this.state.chordroot}
+								{this.state.chordtype}:{" "}
+								<input
+									type="text"
+									value={this.famiStudio(
+										this.state.chord,
+										this.state.octave
+									).join(",")}
+									onClick={() => {
+										navigator.clipboard.writeText(
+											this.famiStudio(
+												this.state.chord as Chord,
+												this.state.octave
+											).join(",")
 										);
-									})}
-							</select>
+									}}
+									readOnly
+									disabled
+								/>
+							</div>
 						)}
-					{this.state.chordroot != undefined &&
-						this.state.chordroot != "chordrootblank" &&
-						this.state.chordtype != undefined &&
-						this.state.chordtype != "chordtypeblank" && (
-							<select
-								name="chordselect"
-								id="chordselect"
-								value={this.state.chordselect}
-								onChange={this.onChordSelectChange}
-							>
-								<option id="chordselectblank" value="chordselectblank">
-									Select Chord
-								</option>
-								{[
-									...new Set(
-										chordfingers
-											.filter(
-												(e) =>
-													e.CHORD_ROOT === this.state.chordroot &&
-													e.CHORD_TYPE === this.state.chordtype
-											)
-											.map((chord) => this.chordSelect(chord))
-									),
-								]
-									.sort(
-										new Intl.Collator("en", {
-											numeric: true,
-											sensitivity: "accent",
-										}).compare
-									)
-									.map((chord) => {
-										return (
-											<option key={chord} id={chord} value={chord}>
-												{chord}
-											</option>
-										);
-									})}
-							</select>
-						)}
-				</div>
-				<div>
-					{this.state.chord != undefined && (
-						<div>
-							Octave:{" "}
-							<input
-								type="number"
-								id="octave"
-								value={this.state.octave}
-								onChange={this.onOctaveChange}
-							/>
-							<br />
-							<a href="https://famistudio.org/" target="_blank">
-								FamiStudio
-							</a>{" "}
-							arpeggio numbers for {this.state.chordroot}
-							{this.state.chordtype}:{" "}
-							<input
-								type="text"
-								value={this.famiStudio(
-									this.state.chord,
-									this.state.octave
-								).join(",")}
-								onClick={() => {
-									navigator.clipboard.writeText(
-										this.famiStudio(
-											this.state.chord as Chord,
-											this.state.octave
-										).join(",")
-									);
-								}}
-								readOnly
-								disabled
-							/>
-						</div>
-					)}
+					</div>
 				</div>
 			</div>
 		);
