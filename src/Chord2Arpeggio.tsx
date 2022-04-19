@@ -136,14 +136,15 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 				id="Chord2ArpeggioParent"
 				style={{
 					display: "flex",
-					flexFlow: "column wrap",
+					flexFlow: "row wrap",
 					justifyContent: "flex-start",
 					alignItems: "flex-start",
+					columnGap: 10,
 				}}
 			>
 				<div id="shape" style={{ flex: "flex-shrink" }}>
 					<form>
-						<table>
+						<table style={{ borderCollapse: "collapse" }}>
 							<tbody>
 								<tr>
 									<th />
@@ -327,6 +328,10 @@ export class Chord2Arpeggio extends React.Component<{}, State> {
 								/>
 							</div>
 						)}
+						<br />
+						<a href="https://github.com/BenMcLean/Chord2Arpeggio">
+							Get the source for this app!
+						</a>
 					</div>
 				</div>
 			</div>
