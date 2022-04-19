@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
+import Chord2Arpeggio from "./Chord2Arpeggio";
 
 ReactDOM.render(
 	<React.StrictMode>
-		<App />
+		<Chord2Arpeggio />
 	</React.StrictMode>,
 	document.getElementById("root")
 );
