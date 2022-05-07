@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/Chord2Arpeggio/sw.js', { scope: '/Chord2Arpeggio/' })})}
